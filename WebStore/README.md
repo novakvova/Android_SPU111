@@ -19,6 +19,14 @@ docker push novakvova/spu111-api:latest
 docker pull novakvova/spu111-api:latest
 docker ps -a
 docker run -d --restart=always --name spu111_container -p 5453:80 novakvova/spu111-api
+
+
+docker pull novakvova/spu111-api:latest
+docker images --all
+docker ps -a
+docker stop spu111_container
+docker rm spu111_container
+docker run -d --restart=always --name spu111_container -p 5453:80 novakvova/spu111-api
 ```
 
 ```nginx options /etc/nginx/sites-available/default
