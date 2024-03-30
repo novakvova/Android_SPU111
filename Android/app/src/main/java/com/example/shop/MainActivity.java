@@ -18,7 +18,10 @@ public class MainActivity extends AppCompatActivity {
 
         //знаходимо елемент на сторінці
         ImageView ivAvatar = findViewById(R.id.ivAvatar);
-        String url = "https://content1.rozetka.com.ua/goods/images/big/415679366.jpg";
+        //Server ip
+        //http://10.0.2.2:5297/images/1.jpg
+//        String url = "https://content1.rozetka.com.ua/goods/images/big/415679366.jpg";
+        String url = "http://10.0.2.2:5297/images/1.jpg";
         Glide.with(HomeApplication.getAppContext())
                 .load(url)
                 .apply(new RequestOptions().override(400))
