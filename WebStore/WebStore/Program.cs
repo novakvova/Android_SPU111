@@ -18,11 +18,11 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 var dir = Path.Combine(Directory.GetCurrentDirectory(), "images");
 if (!Directory.Exists(dir))
@@ -39,5 +39,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.SeedData();
 
 app.Run();
