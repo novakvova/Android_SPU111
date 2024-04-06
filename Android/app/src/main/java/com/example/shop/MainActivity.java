@@ -1,6 +1,8 @@
 package com.example.shop;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.shop.application.HomeApplication;
+import com.example.shop.category.CategoriesAdapter;
 import com.example.shop.dto.category.CategoryItemDTO;
 import com.example.shop.services.ApplicationNetwork;
 
@@ -20,11 +23,15 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    RecyclerView rcCategories;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        rcCategories = findViewById(R.id.rcCategories);
+        rcCategories.setHasFixedSize(true);
+        rcCategories.setLayoutManager(new GridLayoutManager(this, 1, RecyclerView.VERTICAL, false));
         //знаходимо елемент на сторінці
         //ImageView ivAvatar = findViewById(R.id.ivAvatar);
         //Server ip
@@ -46,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(Call<List<CategoryItemDTO>> call, Response<List<CategoryItemDTO>> response) {
                         if(response.isSuccessful()) {
                             List<CategoryItemDTO> items = response.body();
+                            CategoriesAdapter ca = new CategoriesAdapter(items);
+                            rcCategories.setAdapter(ca);
                             //int count = items.size();
                             //Log.d("---count---", String.valueOf(count));
                         }
