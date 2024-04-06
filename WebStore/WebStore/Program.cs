@@ -4,6 +4,8 @@ using Microsoft.Extensions.FileProviders;
 using System;
 using WebStore.Data;
 using WebStore.Data.Entities.Identity;
+using WebStore.Interfaces;
+using WebStore.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
 })
     .AddEntityFrameworkStores<MyAppContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
