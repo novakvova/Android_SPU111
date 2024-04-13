@@ -1,13 +1,21 @@
 package com.example.shop.category;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.shop.BaseActivity;
+import com.example.shop.MainActivity;
 import com.example.shop.R;
+import com.example.shop.dto.category.CategoryCreateDTO;
+import com.example.shop.dto.category.CategoryItemDTO;
+import com.example.shop.services.ApplicationNetwork;
 import com.google.android.material.textfield.TextInputLayout;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CategoryCreateActivity extends BaseActivity {
 
@@ -25,7 +33,28 @@ public class CategoryCreateActivity extends BaseActivity {
         try {
             String name = tlCategoryName.getEditText().getText().toString().trim();
             String description = tlCategoryDescription.getEditText().getText().toString().trim();
-            Toast.makeText(this, name+"   "+description, Toast.LENGTH_LONG).show();
+            CategoryCreateDTO dto = new CategoryCreateDTO();
+            dto.setName(name);
+            dto.setDescription(description);
+            ApplicationNetwork.getInstance()
+                    .getCategoriesApi()
+                    .create(dto)
+                    .enqueue(new Callback<CategoryItemDTO>() {
+                        @Override
+                        public void onResponse(Call<CategoryItemDTO> call, Response<CategoryItemDTO> response) {
+                            if(response.isSuccessful())
+                            {
+                                Intent intent = new Intent(CategoryCreateActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<CategoryItemDTO> call, Throwable throwable) {
+
+                        }
+                    });
         }
         catch(Exception ex) {
             Log.e("--CategoryCreateActivity--", "Problem create "+ ex.getMessage());
