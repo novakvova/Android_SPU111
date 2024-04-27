@@ -14,6 +14,7 @@ import com.example.shop.application.HomeApplication;
 import com.example.shop.category.CategoriesAdapter;
 import com.example.shop.dto.category.CategoryItemDTO;
 import com.example.shop.services.ApplicationNetwork;
+import com.example.shop.utils.CommonUtils;
 
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class MainActivity extends BaseActivity {
 //                .load(url)
 //                .apply(new RequestOptions().override(400))
 //                .into(ivAvatar);
-
+        CommonUtils.showLoading();
         ApplicationNetwork
                 .getInstance()
                 .getCategoriesApi()
@@ -58,11 +59,13 @@ public class MainActivity extends BaseActivity {
                             //int count = items.size();
                             //Log.d("---count---", String.valueOf(count));
                         }
+                        CommonUtils.hideLoading();
                     }
 
                     @Override
                     public void onFailure(Call<List<CategoryItemDTO>> call, Throwable throwable) {
                         Log.e("--problem--", "error server");
+                        CommonUtils.hideLoading();
                     }
                 });
     }
