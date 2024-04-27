@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
@@ -10,6 +11,7 @@ namespace WebStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly MyAppContext _appContext;
@@ -22,6 +24,7 @@ namespace WebStore.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            var email = User.Claims.FirstOrDefault().Value;
             var list = _appContext.Categories.ToList();
             return Ok(list);
         }
@@ -63,7 +66,7 @@ namespace WebStore.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Edit([FromBody] CategoryEditViewModel model)
+        public async Task<IActionResult> Edit([FromForm] CategoryEditViewModel model)
         {
             var category = _appContext.Categories.SingleOrDefault(x => x.Id == model.Id);
             if (category == null)

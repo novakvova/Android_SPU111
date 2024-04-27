@@ -1,7 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System;
+using System.Reflection;
+using System.Text;
 using WebStore.Data;
 using WebStore.Data.Entities.Identity;
 using WebStore.Interfaces;
@@ -27,10 +32,56 @@ builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+var singinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<String>("JwtSecretKey")));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(cfg =>
+{
+    cfg.RequireHttpsMetadata = false;
+    cfg.SaveToken = true;
+    cfg.TokenValidationParameters = new TokenValidationParameters()
+    {
+        IssuerSigningKey = singinKey,
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+builder.Services.AddSwaggerGen(c =>
+{
+    var fileDoc = Path.Combine(AppContext.BaseDirectory, $"{assemblyName}.xml");
+    c.IncludeXmlComments(fileDoc);
+    c.AddSecurityDefinition("Bearer",
+        new OpenApiSecurityScheme
+        {
+            Description = "Jwt Auth header using the Bearer scheme",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer"
+        });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference=new OpenApiReference
+                {
+                    Id="Bearer",
+                    Type = ReferenceType.SecurityScheme
+                }
+            }, new List<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -53,6 +104,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images"
 });
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
