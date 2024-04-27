@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
@@ -18,11 +19,14 @@ namespace WebStore.Controllers
     {
         private readonly MyAppContext _appContext;
         private readonly UserManager<UserEntity> _userManager;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(MyAppContext appContext, UserManager<UserEntity> userManager)
+        public CategoriesController(MyAppContext appContext, UserManager<UserEntity> userManager,
+            IMapper mapper)
         {
             _appContext = appContext;
             _userManager = userManager;
+            _mapper = mapper;  
         }
 
         private async Task<UserEntity> GetUserAuthAsync()
@@ -38,6 +42,7 @@ namespace WebStore.Controllers
             var user = await GetUserAuthAsync();
             var list = _appContext.Categories
                 .Where(x=>x.UserId == user.Id)
+                .Select(x=>_mapper.Map<CategoryItemViewModel>(x))
                 .ToList();
             return Ok(list);
         }
@@ -55,7 +60,7 @@ namespace WebStore.Controllers
                 return NotFound();
             }
 
-            return Ok(category);
+            return Ok(_mapper.Map<CategoryItemViewModel>(category));
         }
 
         [HttpPost]
@@ -94,7 +99,7 @@ namespace WebStore.Controllers
             
             _appContext.Categories.Add(category);
             _appContext.SaveChanges();
-            return Ok(category);
+            return Ok(_mapper.Map<CategoryItemViewModel>(category));
         }
 
         [HttpPut]
@@ -137,7 +142,7 @@ namespace WebStore.Controllers
             category.Description = model.Description;
             category.Name = model.Name;
             _appContext.SaveChanges();
-            return Ok(category);
+            return Ok(_mapper.Map<CategoryItemViewModel>(category));
         }
 
         [HttpDelete("{id}")]
